@@ -1089,6 +1089,7 @@ func (cc *ClientConn) roundTrip(req *http.Request) (res *http.Response, gotErrAf
 			default:
 			}
 			if err != nil {
+				cc.forgetStreamID(cs.ID)
 				return nil, cs.getStartedWrite(), err
 			}
 			bodyWritten = true
@@ -1210,6 +1211,7 @@ func (cs *clientStream) writeRequestBody(body io.Reader, bodyCloser io.Closer) (
 			sawEOF = true
 			err = nil
 		} else if err != nil {
+			cc.writeStreamReset(cs.ID, ErrCodeCancel, err)
 			return err
 		}
 
